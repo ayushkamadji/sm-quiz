@@ -9,7 +9,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
     MikroOrmModule.forRoot({
       entities: ["./dist/issues/entities"],
       entitiesTs: ["./src/issues/entities"],
-      dbName: "my-db-name.sqlite3",
+      dbName: "database.sqlite3",
       type: "sqlite",
     }),
     IssuesModule,

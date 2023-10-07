@@ -1,26 +1,43 @@
 import { Injectable } from "@nestjs/common";
 import { CreateIssueDto } from "./dto/create-issue.dto";
 import { UpdateIssueDto } from "./dto/update-issue.dto";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { Issue } from "./entities/issue.entity";
+import { EntityRepository } from "@mikro-orm/core";
 
 @Injectable()
 export class IssuesService {
-  create(createIssueDto: CreateIssueDto) {
-    return "This action adds a new issue";
+  constructor(
+    @InjectRepository(Issue)
+    private issueRepository: EntityRepository<Issue>,
+  ) {}
+
+  async create(createIssueDto: CreateIssueDto) {
+    const issue = await this.issueRepository.create(createIssueDto);
+    return this.issueRepository.persistAndFlush(issue);
   }
 
-  findAll() {
-    return `This action returns all issues`;
+  async findAll() {
+    return await this.issueRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} issue`;
+  async findOne(id: number) {
+    return await this.issueRepository.findOne(id);
   }
 
-  update(id: number, updateIssueDto: UpdateIssueDto) {
-    return `This action updates a #${id} issue`;
+  async update(id: number, updateIssueDto: UpdateIssueDto) {
+    const issue = await this.issueRepository.findOne(id);
+    await this.issueRepository.upsert({
+      ...issue,
+      ...updateIssueDto,
+    });
+
+    return { id, ...updateIssueDto };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} issue`;
+  async remove(id: number) {
+    await this.issueRepository.removeAndFlush(
+      await this.issueRepository.findOne(id),
+    );
   }
 }
