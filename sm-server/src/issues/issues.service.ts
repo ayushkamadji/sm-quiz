@@ -27,12 +27,12 @@ export class IssuesService {
 
   async update(id: number, updateIssueDto: UpdateIssueDto) {
     const issue = await this.issueRepository.findOne(id);
-    await this.issueRepository.upsert({
-      ...issue,
-      ...updateIssueDto,
-    });
+    issue.title = updateIssueDto.title;
+    issue.description = updateIssueDto.description;
 
-    return { id, ...updateIssueDto };
+    await this.issueRepository.persistAndFlush(issue);
+
+    return {};
   }
 
   async remove(id: number) {
